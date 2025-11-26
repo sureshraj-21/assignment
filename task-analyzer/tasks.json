@@ -1,0 +1,29 @@
+{
+  "tasks": [
+    {
+      "id": "task1",
+      "title": "Complete project report",
+      "due_date": "2025-11-30",
+      "priority": 8,
+      "effort": 6,
+      "dependencies": []
+    },
+    {
+      "id": "task2",
+      "title": "Review team feedback",
+      "due_date": "2025-11-28",
+      "priority": 7,
+      "effort": 2,
+      "dependencies": []
+    },
+    {
+      "id": "task3",
+      "title": "Fix critical bug",
+      "due_date": "2025-11-27",
+      "priority": 9,
+      "effort": 4,
+      "dependencies": []
+    }
+  ],
+  "strategy": "smart"
+}

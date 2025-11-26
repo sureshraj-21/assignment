@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Analyzer - Intelligent Task Prioritization</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📋 Task Analyzer</h1>
+            <p class="subtitle">Intelligent Task Prioritization & Analysis</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Panel: Input Section -->
+            <section class="input-section">
+                <h2>Input Tasks</h2>
+
+                <!-- Strategy Selector -->
+                <div class="strategy-selector">
+                    <label for="strategy">Sorting Strategy:</label>
+                    <select id="strategy" class="strategy-dropdown">
+                        <option value="smart">🧠 Smart Balance (Default)</option>
+                        <option value="effort">⚡ Fastest Wins (Low Effort)</option>
+                        <option value="importance">🎯 High Impact (Importance)</option>
+                        <option value="urgency">⏰ Deadline Driven (Urgency)</option>
+                    </select>
+                </div>
+
+                <!-- Tabs for Input Methods -->
+                <div class="input-tabs">
+                    <button class="tab-button active" data-tab="individual">Add Individual Task</button>
+                    <button class="tab-button" data-tab="bulk">Bulk Import (JSON)</button>
+                </div>
+
+                <!-- Individual Task Form -->
+                <div id="individual" class="tab-content active">
+                    <form id="taskForm" class="task-form">
+                        <div class="form-group">
+                            <label for="taskTitle">Task Title *</label>
+                            <input type="text" id="taskTitle" placeholder="Enter task title" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="taskPriority">Priority (1-10) *</label>
+                                <input type="number" id="taskPriority" min="1" max="10" value="5" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskEffort">Effort (1-10) *</label>
+                                <input type="number" id="taskEffort" min="1" max="10" value="5" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="taskDueDate">Due Date</label>
+                            <input type="date" id="taskDueDate">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="taskDependencies">Dependencies (comma-separated IDs)</label>
+                            <input type="text" id="taskDependencies" placeholder="e.g., task1, task2">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">➕ Add Task</button>
+                    </form>
+
+                    <!-- Tasks List Preview -->
+                    <div class="tasks-preview">
+                        <h3>Added Tasks</h3>
+                        <div id="tasksPreview" class="tasks-list-preview">
+                            <p class="empty-state">No tasks added yet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bulk Import Tab -->
+                <div id="bulk" class="tab-content">
+                    <div class="form-group">
+                        <label for="jsonImport">Paste JSON Array of Tasks</label>
+                        <textarea id="jsonImport" class="json-textarea" placeholder='[{"title":"Task 1","priority":8,"effort":4,"due_date":"2025-11-30"}]'></textarea>
+                        <p class="help-text">Paste a JSON array of task objects. Each task should have: title, priority (1-10), effort (1-10), and optionally due_date and dependencies.</p>
+                    </div>
+                    <button type="button" id="importBtn" class="btn btn-secondary">📥 Import JSON</button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="button" id="analyzeBtn" class="btn btn-primary btn-large">
+                        🚀 Analyze Tasks
+                    </button>
+                    <button type="button" id="clearBtn" class="btn btn-secondary btn-outline">
+                        🗑️ Clear All
+                    </button>
+                </div>
+            </section>
+
+            <!-- Right Panel: Output Section -->
+            <section class="output-section">
+                <h2>Analysis Results</h2>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="loading-state hidden">
+                    <div class="spinner"></div>
+                    <p>Analyzing your tasks...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="errorState" class="error-state hidden">
+                    <p id="errorMessage"></p>
+                </div>
+
+                <!-- Results Container -->
+                <div id="resultsContainer" class="results-container hidden">
+                    <!-- Cycle Detection Alert -->
+                    <div id="cycleAlert" class="alert alert-warning hidden">
+                        ⚠️ Circular dependency detected! Check the cycles section below.
+                    </div>
+
+                    <!-- Dependency Graph Visualization -->
+                    <div id="graphSection" class="graph-section hidden">
+                        <h3>🔗 Dependency Graph</h3>
+                        <svg id="depGraph" class="dependency-graph" width="100%" height="400"></svg>
+                    </div>
+
+                    <!-- Strategy Info -->
+                    <div class="strategy-info">
+                        <p id="strategyInfo" class="strategy-description"></p>
+                    </div>
+
+                    <!-- Summary Stats -->
+                    <div class="summary-stats">
+                        <div class="stat-card">
+                            <h4>Total Tasks</h4>
+                            <p id="totalTasks" class="stat-value">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>High Priority</h4>
+                            <p id="highPriorityCount" class="stat-value">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Cycles Detected</h4>
+                            <p id="cyclesCount" class="stat-value">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Cycles Section (if any) -->
+                    <div id="cyclesSection" class="cycles-section hidden">
+                        <h3>🔄 Circular Dependencies</h3>
+                        <div id="cyclesList" class="cycles-list"></div>
+                    </div>
+
+                    <!-- Tasks Results -->
+                    <div class="results-list">
+                        <h3>📊 Prioritized Tasks</h3>
+                        <div id="resultsList" class="tasks-results">
+                            <!-- Results will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Eisenhower Matrix View -->
+                <div id="eisenhowerSection" class="eisenhower-section hidden">
+                    <h3>🎯 Eisenhower Matrix</h3>
+                    <div class="eisenhower-matrix">
+                        <div class="matrix-quadrant quadrant-1">
+                            <div class="quadrant-label">⚡ Do First</div>
+                            <div class="quadrant-label-sub">Urgent & Important</div>
+                            <div class="quadrant-tasks" id="q1"></div>
+                        </div>
+                        <div class="matrix-quadrant quadrant-2">
+                            <div class="quadrant-label">📅 Schedule</div>
+                            <div class="quadrant-label-sub">Not Urgent & Important</div>
+                            <div class="quadrant-tasks" id="q2"></div>
+                        </div>
+                        <div class="matrix-quadrant quadrant-3">
+                            <div class="quadrant-label">⏸️ Delegate</div>
+                            <div class="quadrant-label-sub">Urgent & Not Important</div>
+                            <div class="quadrant-tasks" id="q3"></div>
+                        </div>
+                        <div class="matrix-quadrant quadrant-4">
+                            <div class="quadrant-label">🗑️ Eliminate</div>
+                            <div class="quadrant-label-sub">Not Urgent & Not Important</div>
+                            <div class="quadrant-tasks" id="q4"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="empty-state-container">
+                    <p>👈 Add tasks and click "Analyze" to see results</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Task Analyzer © 2025 | Smart Task Prioritization System</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
